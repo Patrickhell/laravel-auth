@@ -1,6 +1,8 @@
 <?php
 
-use App\Http\Controllers\Admin\HomeController;
+use App\Http\Controllers\Admin\AlbumController;
+use App\Http\Controllers\Admin\HomeController as AdminHomeController;
+use App\Http\Controllers\Guest\HomeController as GuestHomeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,11 +29,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::get('admin/home', [HomeController::class, 'home'])->name('admin.home');
 });
 
 require __DIR__ . '/auth.php';
 
 Auth::routes();
+
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+    Route::get('/home', [AdminHomeController::class, 'home'])->name('home');
+    Route::resource('/albums', AlbumController::class);
+});
+
+Route::name('guest.')->group(function () {
+    Route::get('/', [GuestHomeController::class, 'home'])->name('home');
+});
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

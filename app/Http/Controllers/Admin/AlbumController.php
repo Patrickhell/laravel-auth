@@ -92,8 +92,10 @@ class AlbumController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Album $album)
+
     {
-        //
+        $album->delete();
+        return redirect()->route('admin.albums.index');
     }
 }

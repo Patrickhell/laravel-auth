@@ -15,12 +15,17 @@
                 <p class="card-text my-4">SONDS : {{ $album->songs_number}}</p>
                 <p>GENRES : {{ $album->genres }}</p>
                 <div class="d-flex justify-content-center ">
-                    <a href="" class="btn btn-md btn-success mx-2">
+                    <a href="{{ route('admin.albums.edit', $album) }}" class="btn btn-md btn-success mx-2">
                         Edit
                     </a>
-                    <a href="" class="btn btn-md btn-warning ">
-                        Delete
-                    </a>
+                    <form action="{{ route('admin.albums.destroy', $album) }} " method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-md btn-warning ">
+                            Delete
+                        </button>
+                    </form>
+
                 </div>
             </div>
         </div>

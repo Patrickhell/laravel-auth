@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
+
 
 class AlbumController extends Controller
 {
@@ -33,25 +35,29 @@ class AlbumController extends Controller
      */
     public function store(Request $request)
     {
+
         $data = $request->validate([
             'singer_name' => ['required', 'min:10', 'max:255'],
             'title' => ['required', 'unique:albums', 'max:255'],
-            'imageUrl' => ['url:https'],
+            'imageUrl' => ['required', 'imageUrl'],
             'genres' => ['required', 'max:255'],
             'songs_number' => ['required', 'max:20'],
 
         ]);
 
+        $img_path = Storage::put('uploads/admin/albums', $request['imageUrl']);
+        $data['imageUrl'] = $img_path;
+
         $data['slug'] = Str::of($data['title'])->slug('-');
         $newAlbum = Album::create($data);
 
-        return redirect()->route('admin.albums.index');
+        return redirect()->route('admin.albums.show', $newAlbum);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(ALbum $album)
+    public function show(Album $album)
     {
         return view('admin.albums.show', compact('album'));
     }
@@ -74,11 +80,19 @@ class AlbumController extends Controller
             //per risolvere il problema dell'alert che dice che il titolo è già stato utilizzato infatti perché esendo unico non pùo essere usato più di una volta
             // si usa : il methodo ignore() usando la libreria: use Illuminate\Validation\Rule;  
             'title' => ['required', Rule::unique('albums')->ignore($album->id), 'max:255'],
-            'imageUrl' => ['url:https'],
+            'imageUrl' => ['image'],
             'genres' => ['required', 'max:255'],
             'songs_number' => ['required', 'max:20'],
 
         ]);
+
+        if ($request->hasFile('image')) {
+            Storage::delete($album->imageUrl);
+            $img_path = Storage::put('uploads/admin/albums', $request['imageUrl']);
+            $data['imageUrl'] = $img_path;
+        }
+
+
 
         // non potendo usare un methodo statico essendo che si pùo modificare il singolo campo del form, non si può scrivere: $album::update
         //invece di compilare tutto a mano, e salvare, usiamo le fillable
@@ -110,8 +124,8 @@ class AlbumController extends Controller
         //non funziona con la dipendencie injection perché per forza a questo punto si deve usare il methodo findOrFail per consertire di cercare
         //nell'elemento cancellato nel cestino(perciò si usa il methodo: onlyTrashed() ) se no continua a cercare l'album nell'index tra le cose ancora presenti mentre l'album 
         //è già stato cancellato.
-        //NB nella route del web.php, si usa infatti {id} perché la findOrFail infatti usa cerca l'album nel cestino non l'id:
-        //Route::delete(che diventa con obliterated POST) ('/albums/deleted/{id}', [AlbumController::class, 'restore'])->name('albums.restore');
+        //NB nella route del web.php, si usa infatti {id o $album} perché la findOrFail infatti cerca l'album nel cestino :
+        //Route::delete(che diventa con obliterated POST) ('/albums/deleted/{post}', [AlbumController::class, 'restore'])->name('albums.restore');
         // attuando il metodo obliterate la 'delete' diventa 'POST' perché non viene cancellato l'album definitivamente in quanto a 
         //questo livello lo si pùo ancora restaurare
         $album = Album::onlyTrashed()->findOrFail($id);
@@ -124,6 +138,7 @@ class AlbumController extends Controller
 
         $album = Album::onlyTrashed()->findOrFail($id);
         $album->forceDelete();
+        storage::delete($album->imageUrl);
         return redirect()->route('admin.albums.index');
     }
 }

@@ -38,8 +38,8 @@ Auth::routes();
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/home', [AdminHomeController::class, 'home'])->name('home');
     Route::get('/albums/trashed', [AlbumController::class, 'trashedAlbum'])->name('albums.trashedAlbum');
-    Route::post('/albums/deleted/{id}', [AlbumController::class, 'restore'])->name('albums.restore');
-    Route::delete('/albums/deleted/{id}', [AlbumController::class, 'obliterate'])->name('albums.obliterate');
+    Route::post('/albums/deleted/{album}', [AlbumController::class, 'restore'])->name('albums.restore');
+    Route::delete('/albums/deleted/{album}', [AlbumController::class, 'obliterate'])->name('albums.obliterate');
     Route::resource('/albums', AlbumController::class);
 });
 

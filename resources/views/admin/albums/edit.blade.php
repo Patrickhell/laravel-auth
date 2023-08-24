@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-    <form action="{{ route('admin.albums.update', $album) }}" method="POST">
+    <form action="{{ route('admin.albums.update', $album) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="row justify-content-center">
@@ -54,7 +54,7 @@
                     <label for="imageUrl" class="form-label">
                         Cover Album
                     </label>
-                    <input type="text" class="form-control" id="imageUrl" name="imageUrl" value="{{ old('imageUrl', $album->imageUrl) }}">
+                    <input type="file" class="form-control" id="imageUrl" name="imageUrl" placeholder="Upload" value="{{  old('imageUrl', '') }}">
                 </div>
             </div>
 

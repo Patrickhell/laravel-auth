@@ -35,16 +35,16 @@
                         </td>
                         <td>
                             <a href="{{ route('admin.albums.show', $album) }}" class="btn btn-sm btn-primary  mx-2">
-                                See more
+                                <i class="fa-solid fa-eye"></i>
                             </a>
-                            <a href="" class="btn btn-sm btn-success mx-2">
-                                Edit
+                            <a href="{{ route('admin.albums.edit', $album) }}" class="btn btn-sm btn-success mx-2">
+                                <i class="fa-solid fa-pen"></i>
                             </a>
                             <form class="d-inline-block" action="{{ route('admin.albums.destroy', $album) }} " method="POST">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-md btn-warning ">
-                                    Delete
+                                    <i class="fa-solid fa-trash"></i>
                                 </button>
                             </form>
                         </td>

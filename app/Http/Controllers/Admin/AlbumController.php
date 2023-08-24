@@ -98,4 +98,32 @@ class AlbumController extends Controller
         $album->delete();
         return redirect()->route('admin.albums.index');
     }
+
+    public function trashedAlbum()
+    {  //Album è il modello.
+        $albums = Album::onlyTrashed()->paginate((8));
+        return view('admin.albums.trashedAlbum', compact('albums'));
+    }
+
+    public function restore(Int $id)
+    {
+        //non funziona con la dipendencie injection perché per forza a questo punto si deve usare il methodo findOrFail per consertire di cercare
+        //nell'elemento cancellato nel cestino(perciò si usa il methodo: onlyTrashed() ) se no continua a cercare l'album nell'index tra le cose ancora presenti mentre l'album 
+        //è già stato cancellato.
+        //NB nella route del web.php, si usa infatti {id} perché la findOrFail infatti usa cerca l'album nel cestino non l'id:
+        //Route::delete(che diventa con obliterated POST) ('/albums/deleted/{id}', [AlbumController::class, 'restore'])->name('albums.restore');
+        // attuando il metodo obliterate la 'delete' diventa 'POST' perché non viene cancellato l'album definitivamente in quanto a 
+        //questo livello lo si pùo ancora restaurare
+        $album = Album::onlyTrashed()->findOrFail($id);
+        $album->restore();
+        return redirect()->route('admin.albums.index');
+    }
+
+    public function obliterate(Int $id)
+    {
+
+        $album = Album::onlyTrashed()->findOrFail($id);
+        $album->forceDelete();
+        return redirect()->route('admin.albums.index');
+    }
 }
